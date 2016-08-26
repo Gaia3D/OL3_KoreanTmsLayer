@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Naver Map Based WMS</title>
+    <link rel="stylesheet" href="lib/ol.css" type="text/css">
+    <script src="lib/ol-debug.js"></script>
+	<script src="lib/proj4.js"></script>
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <script>
+	  proj4.defs("EPSG:5174","+proj=tmerc +lat_0=38 +lon_0=127.0028902777778 +k=1 +x_0=200000 +y_0=500000 +ellps=bessel +towgs84=-115.8,474.99,674.11,1.16,-2.31,-1.63,6.43 +units=m +axis=neu +no_defs");
+	  proj4.defs("EPSG:5179","+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +axis=neu +no_defs");
+	  var tileGrid = new ol.tilegrid.TileGrid({
+	    extent: [90112, 1192896, 1990673, 2761664],
+		minZoom: 1,
+		resolutions: [4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5, 0.25],
+		tileSize: [256, 256]
+	  });
+	  
+      var map = new ol.Map({
+        target: 'map',
+		pixelRatio: 1,  // !! VERY IMPORTENT FOR TILE SIZE FIX
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.XYZ({
+              urls: [
+					"http://onetile1.map.naver.net/get/149/0/0/{z}/{x}/{-y}/bl_vc_bg/ol_vc_an",
+					"http://onetile2.map.naver.net/get/149/0/0/{z}/{x}/{-y}/bl_vc_bg/ol_vc_an",
+					"http://onetile3.map.naver.net/get/149/0/0/{z}/{x}/{-y}/bl_vc_bg/ol_vc_an",
+					"http://onetile4.map.naver.net/get/149/0/0/{z}/{x}/{-y}/bl_vc_bg/ol_vc_an"
+				],
+			  opaque: true,
+			  projection: 'EPSG:5179',
+			  tileGrid: tileGrid
+            })
+          }),
+			new ol.layer.Tile({
+			  extent: [90112, 1192896, 1990673, 2761664],
+			  source: new ol.source.TileWMS({
+				//url: 'http://localhost:8080/geoserver/cite/wms',
+				url: 'http://localhost:8080/geoserver/cite/gwc/service/wms',
+				params: {'LAYERS': 'cite:cbnd_50000', 'TILED': true, 'FORMAT': 'image/png', 'TRANSPARENT': true},
+				projection: 'EPSG:5179',
+				tileGrid: tileGrid,
+				serverType: 'geoserver'
+			  })
+			})
+        ],
+        view: new ol.View({
+          center: [953920.3 , 1951999.6],
+          zoom: 10, 
+		  projection: 'EPSG:5179'
+        })
+      });
+    </script>
+  </body>
+</html>
